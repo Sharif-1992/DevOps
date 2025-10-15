@@ -1,0 +1,32 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+tfplan*
+*.tfvars
+.terraformrc
+.terraform.lock.hcl
+
+# Windows
+*.exe
+*.dll
+*.log
+*.bak
+Thumbs.db
+Desktop.ini
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# VS Code
+.vscode/
+
+# Misc
+*.swp
+*.swo
+*.tmp
+*.DS_Store
