@@ -44,14 +44,27 @@ resource "azurerm_portal_dashboard" "my-board" {
                         "colSpan": 6
                     },
                     "metadata": {
-                        "inputs": [],
-                        "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                        "inputs": [
+                            {
+                                "name": "query",
+                                "value": file("vm_cpu_utilization.kql")
+                            },
+                            {
+                                "name": "resourceType",
+                                "value": "microsoft.operationalinsights/workspaces"
+                            },
+                            {
+                                "name": "resourceId",
+                                "value": azurerm_log_analytics_workspace.log_workspace.id
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/LogAnalyticsPart",
                         "settings": {
                             "content": {
                                 "settings": {
-                                    "content": format("# VM CPU Utilization\n[Open AVD VM CPU Workbook](%s)", format("https://portal.azure.com/#resource/%s", azurerm_application_insights_workbook.vm_monitoring.id)),
-                                    "subtitle": "",
-                                    "title": "VM CPU Utilization"
+                                    "query": file("vm_cpu_utilization.kql"),
+                                    "title": "VM CPU Utilization",
+                                    "visualization": "timechart"
                                 }
                             }
                         }
