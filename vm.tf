@@ -27,6 +27,10 @@ resource "azurerm_virtual_machine_extension" "ama_agent" {
   type                       = "AzureMonitorLinuxAgent"
   type_handler_version       = "1.10"
   auto_upgrade_minor_version = true
+
+  depends_on = [
+    azurerm_monitor_data_collection_rule_association.dcr_assoc
+  ]
 }
 resource "azurerm_virtual_network" "vnet" {
   name                = "demo-vnet"
@@ -62,6 +66,10 @@ resource "azurerm_linux_virtual_machine" "vm" {
   admin_username      = var.vm_admin_username
 
   network_interface_ids = [azurerm_network_interface.nic.id]
+
+  identity {
+    type = "SystemAssigned"
+  }
 
   admin_ssh_key {
     username   = var.vm_admin_username

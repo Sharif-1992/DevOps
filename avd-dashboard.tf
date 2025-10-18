@@ -44,7 +44,12 @@ resource "azurerm_portal_dashboard" "my-board" {
               "colSpan" : 6
             },
             "metadata" : {
-              "inputs" : [],
+              "inputs" : [
+                {
+                  "name"  : "ResourceId",
+                  "value" : azurerm_log_analytics_workspace.log_workspace.id
+                }
+              ],
               "type" : "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
               "settings" : {
                 "workspace" : {

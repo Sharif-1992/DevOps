@@ -1,3 +1,4 @@
-Perf
-| where ObjectName == 'Processor' and CounterName == '% Processor Time'
-| summarize AvgCPU = avg(CounterValue) by bin(TimeGenerated, 5m), Computer
+Heartbeat
+| where TimeGenerated < ago(1h)
+| summarize count() by Computer
+| project Computer, count_

@@ -11,9 +11,10 @@ resource "azurerm_log_analytics_workspace" "log_workspace" {
 
 # Data Collection Rule to instruct AMA what to collect and where to send it
 resource "azurerm_monitor_data_collection_rule" "dcr" {
-  name                = "dcr-demo"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+  name                        = "dcr-demo"
+  location                    = azurerm_resource_group.example.location
+  resource_group_name         = azurerm_resource_group.example.name
+  data_collection_endpoint_id = azurerm_monitor_data_collection_endpoint.dce.id
 
   data_sources {
     syslog {
@@ -23,13 +24,23 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
       log_levels     = ["Info", "Warning", "Error"]
     }
     performance_counter {
-      name                         = "perf-collection"
-      streams                      = ["Microsoft-Perf"]
+      name                          = "perf-collection"
+      streams                       = ["Microsoft-Perf"]
       sampling_frequency_in_seconds = 60
       counter_specifiers = [
         "\\Processor(_Total)\\% Processor Time",
-        "\\Memory\\Available Bytes"
+        "\\Memory\\Available MBytes",
+        "\\LogicalDisk(_Total)\\% Free Space",
+        "\\Network Interface(*)\\Bytes Total/sec"
       ]
+    }
+    # Collect curated VM Insights metrics via AMA into InsightsMetrics
+    performance_counter {
+      name                          = "insightsmetrics-collection"
+      streams                       = ["Microsoft-InsightsMetrics"]
+      sampling_frequency_in_seconds = 60
+      # Special selector that enables the curated vmInsights metrics set
+      counter_specifiers            = ["\\VmInsights\\DetailedMetrics"]
     }
   }
 
@@ -41,7 +52,7 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
   }
 
   data_flow {
-    streams      = ["Microsoft-Syslog", "Microsoft-Perf"]
+    streams      = ["Microsoft-Syslog", "Microsoft-Perf", "Microsoft-InsightsMetrics"]
     destinations = ["la"]
   }
 }

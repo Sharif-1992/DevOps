@@ -1,12 +1,12 @@
-terraform { 
-  cloud { 
-    
-    organization = "RHM_Digital_Showroom" 
+terraform {
+  cloud {
 
-    workspaces { 
-      name = "rhm-digital-workspace" 
-    } 
-  } 
+    organization = "RHM_Digital_Showroom"
+
+    workspaces {
+      name = "rhm-digital-workspace"
+    }
+  }
 }
 
 terraform {
