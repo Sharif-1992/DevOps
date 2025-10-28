@@ -1,4 +1,5 @@
 Heartbeat
-| where TimeGenerated < ago(1h)
-| summarize count() by Computer
-| project Computer, count_
+| where TimeGenerated > ago(1h)
+| extend ResourceId = coalesce(tostring(_ResourceId), tostring(ResourceId))
+| summarize count() by Computer, ResourceId
+| project Computer, ResourceId, count_

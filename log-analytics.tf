@@ -40,7 +40,7 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
       streams                       = ["Microsoft-InsightsMetrics"]
       sampling_frequency_in_seconds = 60
       # Special selector that enables the curated vmInsights metrics set
-      counter_specifiers            = ["\\VmInsights\\DetailedMetrics"]
+      counter_specifiers = ["\\VmInsights\\DetailedMetrics"]
     }
   }
 
