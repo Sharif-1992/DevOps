@@ -1,7 +1,7 @@
 variable "log_workspace_name" {
   description = "Name of the Log Analytics Workspace"
   type        = string
-  default     = "my-log-workspace"
+  default     = "log-workspace-eastus"
 }
 
 variable "log_workspace_sku" {
@@ -19,7 +19,7 @@ variable "log_workspace_retention" {
 variable "vm_name" {
   description = "Name of the VM to create"
   type        = string
-  default     = "demo-vm"
+  default     = "demo-vm-eastus"
 }
 
 variable "vm_admin_username" {
@@ -38,4 +38,40 @@ variable "vm_size" {
   description = "VM size"
   type        = string
   default     = "Standard_B1s"
+}
+
+variable "primary_location" {
+  description = "Azure region for the primary VM/workspace"
+  type        = string
+  default     = "eastus"
+}
+
+variable "secondary_location" {
+  description = "Azure region for the secondary VM/workspace"
+  type        = string
+  default     = "westeurope"
+}
+
+variable "vm_secondary_name" {
+  description = "Name of the secondary VM to create"
+  type        = string
+  default     = "demo-vm-westeurope"
+}
+
+variable "log_workspace_name_secondary" {
+  description = "Name of the secondary Log Analytics Workspace"
+  type        = string
+  default     = "log-workspace-westeurope"
+}
+
+variable "resource_group_name_primary" {
+  description = "Name of the primary resource group"
+  type        = string
+  default     = "mygroup-eastus"
+}
+
+variable "resource_group_name_secondary" {
+  description = "Name of the secondary resource group"
+  type        = string
+  default     = "mygroup-westeurope"
 }

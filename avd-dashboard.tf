@@ -1,14 +1,14 @@
 variable "md_content" {
   description = "Content for the MD tile"
-  default     = "# Hello all champs :)"
+  default     = "# Multi-Region VM Monitoring Dashboard\n\n**Regions:** East US | West Europe\n\nConsolidated view of all VMs across regions"
 }
 
 data "azurerm_subscription" "current" {}
 
 resource "azurerm_portal_dashboard" "portal_dashboard" {
-  name                = "my-cool-dashboard"
+  name                = "vm-monitoring-consolidated-dashboard"
   resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
+  location            = var.primary_location
 
   tags = {
     source = "terraform"
@@ -61,7 +61,8 @@ resource "azurerm_portal_dashboard" "portal_dashboard" {
                   name = "Scope"
                   value = {
                     resourceIds = [
-                      azurerm_log_analytics_workspace.log_workspace.id
+                      azurerm_log_analytics_workspace.log_workspace.id,
+                      azurerm_log_analytics_workspace.log_workspace_secondary.id
                     ]
                   }
                   isOptional = true
@@ -106,12 +107,12 @@ resource "azurerm_portal_dashboard" "portal_dashboard" {
                 },
                 {
                   name       = "PartTitle"
-                  value      = "VM Heartbeat Data"
+                  value      = "VM Heartbeat Data - All Regions"
                   isOptional = true
                 },
                 {
                   name       = "PartSubTitle"
-                  value      = "Last 1 hour"
+                  value      = "East US & West Europe - Last 1 hour"
                   isOptional = true
                 },
                 {

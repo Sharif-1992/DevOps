@@ -1,7 +1,7 @@
 resource "azurerm_application_insights_workbook" "vm_monitoring" {
   name                = "b6e0a6b3-2e6b-4f5e-97a4-4e5a3d6d9a1f"
   resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
+  location            = var.primary_location
   display_name        = "VM CPU Utilization"
   category            = "workbook"
   source_id           = lower(azurerm_log_analytics_workspace.log_workspace.id)

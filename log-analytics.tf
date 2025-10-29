@@ -1,6 +1,6 @@
 resource "azurerm_log_analytics_workspace" "log_workspace" {
   name                = var.log_workspace_name
-  location            = azurerm_resource_group.example.location
+  location            = var.primary_location
   resource_group_name = azurerm_resource_group.example.name
   sku                 = var.log_workspace_sku
   retention_in_days   = var.log_workspace_retention
@@ -9,10 +9,71 @@ resource "azurerm_log_analytics_workspace" "log_workspace" {
   }
 }
 
+# Secondary (region) Log Analytics workspace for consolidated dashboard
+resource "azurerm_log_analytics_workspace" "log_workspace_secondary" {
+  name                = var.log_workspace_name_secondary
+  location            = var.secondary_location
+  resource_group_name = azurerm_resource_group.secondary.name
+  sku                 = var.log_workspace_sku
+  retention_in_days   = var.log_workspace_retention
+  tags = {
+    source = "terraform"
+    region = "secondary"
+  }
+}
+
+# Data Collection Rule for secondary region
+resource "azurerm_monitor_data_collection_rule" "dcr_secondary" {
+  name                        = "dcr-demo-secondary"
+  location                    = var.secondary_location
+  resource_group_name         = azurerm_resource_group.secondary.name
+  data_collection_endpoint_id = azurerm_monitor_data_collection_endpoint.dce_secondary.id
+
+  data_sources {
+    syslog {
+      name           = "syslog-collection"
+      streams        = ["Microsoft-Syslog"]
+      facility_names = ["auth", "authpriv", "daemon", "user"]
+      log_levels     = ["Info", "Warning", "Error"]
+    }
+    performance_counter {
+      name                          = "perf-collection"
+      streams                       = ["Microsoft-Perf"]
+      sampling_frequency_in_seconds = 60
+      counter_specifiers = [
+        "\\Processor(_Total)\\% Processor Time",
+        "\\Memory\\Available MBytes",
+        "\\LogicalDisk(_Total)\\% Free Space",
+        "\\Network Interface(*)\\Bytes Total/sec"
+      ]
+    }
+    # Collect curated VM Insights metrics via AMA into InsightsMetrics
+    performance_counter {
+      name                          = "insightsmetrics-collection"
+      streams                       = ["Microsoft-InsightsMetrics"]
+      sampling_frequency_in_seconds = 60
+      # Special selector that enables the curated vmInsights metrics set
+      counter_specifiers = ["\\VmInsights\\DetailedMetrics"]
+    }
+  }
+
+  destinations {
+    log_analytics {
+      name                  = "la"
+      workspace_resource_id = azurerm_log_analytics_workspace.log_workspace_secondary.id
+    }
+  }
+
+  data_flow {
+    streams      = ["Microsoft-Syslog", "Microsoft-Perf", "Microsoft-InsightsMetrics"]
+    destinations = ["la"]
+  }
+}
+
 # Data Collection Rule to instruct AMA what to collect and where to send it
 resource "azurerm_monitor_data_collection_rule" "dcr" {
   name                        = "dcr-demo"
-  location                    = azurerm_resource_group.example.location
+  location                    = var.primary_location
   resource_group_name         = azurerm_resource_group.example.name
   data_collection_endpoint_id = azurerm_monitor_data_collection_endpoint.dce.id
 
@@ -78,4 +139,9 @@ output "log_analytics_workspace_primary_shared_key" {
 output "log_analytics_workspace_customer_id" {
   description = "Customer ID (workspace id) for the Log Analytics Workspace"
   value       = azurerm_log_analytics_workspace.log_workspace.workspace_id
+}
+
+output "log_analytics_workspace_secondary_id" {
+  description = "Customer ID (workspace id) for the secondary Log Analytics Workspace"
+  value       = azurerm_log_analytics_workspace.log_workspace_secondary.workspace_id
 }
